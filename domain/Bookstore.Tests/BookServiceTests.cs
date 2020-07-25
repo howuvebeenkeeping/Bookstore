@@ -1,6 +1,7 @@
 ﻿using Moq;
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Xunit;
 
@@ -44,6 +45,32 @@ namespace Bookstore.Tests
             var actual = bookService.GetAllByQuery(invalidIsbn);
 
             Assert.Collection(actual, book => Assert.Equal(2, book.Id));
+        }
+
+        [Fact]
+        public void GetAllByQuery_WithIsbn_CallsGetAllByIsbn_WithoutMock()
+        {
+            const int idOfSearchIsbn = 1,
+                      idOfSearchAuthorOrTitle = 2;
+
+            var bookRepository = new StubBookRepository();
+
+            bookRepository.ResultOfGetAllByIsbn = new[] 
+            { 
+                new Book(idOfSearchIsbn, "", "", "") 
+            };
+
+            bookRepository.ResultOfGetAllByTitleOrAuthor = new[] 
+            {
+                new Book(idOfSearchAuthorOrTitle, "", "", "") 
+            };
+
+            var bookService = new BookService(bookRepository);
+
+            var books = bookService.GetAllByQuery("ISBN 12345-67890");
+
+            Assert.Collection(books, book => Assert.Equal(idOfSearchIsbn, book.Id));
+
         }
     }
 }
