@@ -26,7 +26,7 @@
                     }
                     else
                     {
-                        @:Товаров @cart.Items.Count на сумму @cart.Amount
+                        @:Товаров @cart.Items.Values.Sum() на сумму @cart.Amount
                     }
                 }
             </span>
