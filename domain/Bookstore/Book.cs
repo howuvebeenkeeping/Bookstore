@@ -10,12 +10,17 @@ namespace Bookstore
         public string Isbn { get; }
         public string Author { get; }
         public string Title { get; }
-        public Book(int id, string isbn, string author, string title)
+        public string Description { get; }
+        public decimal Price { get; }
+
+        public Book(int id, string isbn, string author, string title, string description, decimal price)
         {
             Title = title;
             Id = id;
             Isbn = isbn;
             Author = author;
+            Description = description;
+            Price = price;
         }
 
         internal static bool IsIsbn(string str)
