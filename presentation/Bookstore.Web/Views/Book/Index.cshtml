@@ -8,7 +8,7 @@
 <p>Автор: <b>@Model.Author</b></p>
 <p>Описание: @Model.Description</p>
 <p>Цена: <b>@Model.Price</b></p>
-<form action="@Url.Action("Add", "Cart")" method="post">
+<form action="@Url.Action("AddItem", "Order")" method="post">
     <input type="hidden" name="id" value="@Model.Id"/>
-    <button class="btn btn-outline-success" type="submit">Добавить в корзину</button>
+    <button class="btn btn-success" type="submit">Добавить в корзину</button>
 </form>
