@@ -7,12 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Bookstore.Web
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
+namespace Bookstore.Web {
+    public class Program {
+        public static void Main(string[] args) {
             CreateHostBuilder(args).Build().Run();
         }
 

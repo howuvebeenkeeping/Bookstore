@@ -10,19 +10,18 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-light bg-white">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Интернет-магазин на ASP.NET Core</a>
-            <form class="form-inline my-2 my-lg-0" action="@Url.Action("Index", "Search")" method="get">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Интернет-магазин на ASP.NET Core MVC</a>
+            <form class="form-inline my-2 my-lg-0" action="@Url.Action(action: "Index", "Search")" method="get">
+                <!-- name="query", чтобы замапить на переменную в методе -->
                 <input class="form-control mr-sm-2" type="search" name="query" placeholder="Автор или название" />
                 <button class="btn btn-primary my-2 my-sm-0" type="submit">Поиск</button>
             </form>
             <span class="navbar-text ml-auto">
                 @{
-                    if (Context.Session.TryGetCart(out Cart cart) && cart.TotalCount > 0)
-                    {
-                        <a href="@Url.Action("Index", "Order")">Товаров @cart.TotalCount на сумму @cart.TotalPrice</a>
-                    }
-                    else
-                    {
+                    if (Context.Session.TryGetCart(out Cart cart) && cart.TotalCount > 0) {
+                        /* href="@Url.Action(action: "Index", "Order")" */
+                        <a asp-area="" asp-controller="Order" asp-action="Index">Товаров @cart.TotalCount на сумму @cart.TotalPrice</a>
+                    } else {
                         @:Корзина пуста
                     }
                 }

@@ -1,54 +1,48 @@
 ﻿using System;
+using System.Linq;
 using Xunit;
 
-namespace Bookstore.Tests
-{
-    public class OrderTests
-    {
+namespace Bookstore.Tests {
+    public class OrderTests {
         [Fact]
-        public void Order_WithNullItems_ThrowsArgumentNullException()
-        {
+        public void Order_WithNullItems_ThrowsArgumentNullException() {
             Assert.Throws<ArgumentNullException>(() => new Order(1, null));
         }
 
         [Fact]
-        public void TotalCount_WithEmptyItems_ReturnsZero()
-        {
-            var order = new Order(1, new OrderItem[] { });
-
+        public void TotalCount_WithEmptyItems_ReturnsZero() {
+            var order = new Order(1, Array.Empty<OrderItem>());
             Assert.Equal(0, order.TotalCount);
         }
 
         [Fact]
-        public void TotalPrice_WithEmptyItems_ReturnsZero()
-        {
-            var order = new Order(1, new OrderItem[0]);
-
+        public void TotalPrice_WithEmptyItems_ReturnsZero() {
+            var order = new Order(1, Array.Empty<OrderItem>());
             Assert.Equal(0m, order.TotalPrice);
         }
 
         [Fact]
-        public void TotalCount_WithNotEmptyItems_CalculatesTotalCount()
-        {
-            var order = new Order(1, new[]
-            {
+        public void TotalCount_WithNotEmptyItems_CalculatesTotalCount() {
+            var order = new Order(1, new[] {
                 new OrderItem(1, 3, 10m),
                 new OrderItem(2, 5, 100m)
             });
 
-            Assert.Equal(3 + 5, order.TotalCount);
+            decimal totalCount = order.Items.Sum(item => item.Count);
+
+            Assert.Equal(totalCount, order.TotalCount);
         }
 
         [Fact]
-        public void TotalPrice_WithNotEmptyItems_CalculatesTotalCount()
-        {
-            var order = new Order(1, new[]
-            {
+        public void TotalPrice_WithNotEmptyItems_CalculatesTotalPrice() {
+            var order = new Order(1, new[] {
                 new OrderItem(1, 3, 10m),
                 new OrderItem(2, 5, 100m)
             });
 
-            Assert.Equal(3 * 10m + 5 * 100m, order.TotalPrice);
+            decimal totalPrice = order.Items.Sum(item => item.Count * item.Price);
+
+            Assert.Equal(totalPrice, order.TotalPrice);
         }
     }
 }

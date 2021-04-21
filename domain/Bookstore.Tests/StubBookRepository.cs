@@ -1,27 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Bookstore.Tests
-{
-    class StubBookRepository : IBookRepository
-    {
-        public Book[] ResultOfGetAllByIsbn { get; set; }
-        public Book[] ResultOfGetAllByTitleOrAuthor { get; set; }
+namespace Bookstore.Tests {
+    internal class StubBookRepository : IBookRepository {
+        public Book[] ResultOfGetAllByIsbn { get; init; }
+        public Book[] ResultOfGetAllByTitleOrAuthor { get; init; }
 
-        public Book[] GetAllByIsbn(string isbn)
-        {
-            return ResultOfGetAllByIsbn;
-        }
+        public Book[] GetAllByIsbn(string isbn) => ResultOfGetAllByIsbn;
 
-        public Book[] GetAllByTitleOrAuthor(string titleOrAuthor)
-        {
-            return ResultOfGetAllByTitleOrAuthor;
-        }
+        public Book[] GetAllByTitleOrAuthor(string titleOrAuthor) => ResultOfGetAllByTitleOrAuthor;
 
-        public Book GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
+        public Book GetById(int id) => throw new NotImplementedException();
+
+        public Book[] GetAllByIds(IEnumerable<int> bookIds) => throw new NotImplementedException();
     }
 }

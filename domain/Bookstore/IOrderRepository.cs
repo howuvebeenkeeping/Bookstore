@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bookstore
-{
-    public interface IOrderRepository
-    {
+namespace Bookstore {
+    public interface IOrderRepository {
         Order Create();
 
         Order GetById(int id);

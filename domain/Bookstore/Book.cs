@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Bookstore
-{
-    public class Book
-    {
+namespace Bookstore {
+    public class Book {
         public int Id { get; }
         public string Isbn { get; }
         public string Author { get; }
@@ -13,26 +11,26 @@ namespace Bookstore
         public string Description { get; }
         public decimal Price { get; }
 
-        public Book(int id, string isbn, string author, string title, string description, decimal price)
-        {
-            Title = title;
+        public Book(int id, string isbn, string author, string title, string description, decimal price) {
             Id = id;
             Isbn = isbn;
             Author = author;
+            Title = title;
             Description = description;
             Price = price;
         }
 
-        internal static bool IsIsbn(string str)
-        {
-            if (string.IsNullOrEmpty(str))
+        internal static bool IsIsbn(string line) {
+            if (string.IsNullOrEmpty(line)) {
                 return false;
+            }
 
-            str = str.Replace(" ", "")
-                     .Replace("-", "")
-                     .ToUpper();
+            line = line.Replace(" ", "")
+                       .Replace("-", "")
+                       .ToUpper();
 
-            return Regex.IsMatch(str, @"^ISBN\d{10}(\d{3})?$");
+            // ^ - точное начало строки, $ - точный конец строки, (\d{3})? - возможно еще 3 цифры
+            return Regex.IsMatch(line, @"^ISBN\d{10}(\d{3})?$");
         }
-    }
+     }
 }
