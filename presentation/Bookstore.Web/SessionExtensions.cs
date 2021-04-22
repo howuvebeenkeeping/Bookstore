@@ -7,7 +7,7 @@ namespace Bookstore.Web {
     public static class SessionExtensions {
         private static readonly string Key = "Cart";
         public static void Set(this ISession session, Cart cart) {
-            if (cart == null) return;
+            if (cart == null) { return; }
 
             using var stream = new MemoryStream();
             using var writer = new BinaryWriter(stream, Encoding.UTF8, true);

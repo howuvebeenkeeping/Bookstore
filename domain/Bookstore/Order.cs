@@ -6,8 +6,8 @@ using System.Text;
 
 namespace Bookstore {
     public class Order {
-        private readonly List<OrderItem> _items;
         public int Id { get; }
+        private readonly List<OrderItem> _items;
         public IReadOnlyCollection<OrderItem> Items => _items;
         public int TotalCount => _items.Sum(x => x.Count);
         public decimal TotalPrice => _items.Sum(x => x.Price * x.Count);
@@ -21,21 +21,45 @@ namespace Bookstore {
             _items = new List<OrderItem>(items);
         }
 
-        // Добавить тесты
-        public void AddItem(Book book, int count) {
-            if (book is null)
+        public OrderItem GetItem(int bookId) {
+            int index = _items.FindIndex(item => item.BookId == bookId);
+
+            if (index == -1) {
+                ThrowBookException("Book not found.", bookId);
+            }
+
+            return _items[index];
+        }
+
+        // TODO: Добавить тесты
+        public void AddOrUpdateItem(Book book, int count) {
+            if (book is null) {
                 throw new ArgumentNullException(nameof(book));
+            }
 
-            var item = _items.SingleOrDefault(x => x.BookId == book.Id);
-
-            if (item is null) {
+            int index = _items.FindIndex(item => item.BookId == book.Id);
+            if (index == -1) {
                 _items.Add(new OrderItem(book.Id, count, book.Price));
+            } else {
+                _items[index].Count += count;
             }
-            else {
-                _items.Remove(item);
-                _items.Add(new OrderItem(book.Id, item.Count + count, book.Price));
-            }
+        }
 
+        public void RemoveItem(int bookId) {
+            int index = _items.FindIndex(x => x.BookId == bookId);
+
+            if (index == -1) {
+                ThrowBookException("Order doesn't contain specified item.", bookId);
+            }
+            
+            _items.RemoveAt(index);
+        }
+
+        private void ThrowBookException(string message, int bookId) {
+            var exception = new InvalidOperationException(message);
+            exception.Data[nameof(bookId)] = bookId;
+
+            throw exception;
         }
     }
 }

@@ -12,14 +12,13 @@
             <th scope="col">№</th>
             <th scope="col">Автор</th>
             <th scope="col">Название</th>
-            <th scope="col">Количество</th>
-            <th scope="col">Цена</th>
+            <th scope="col" class="text-right">Количество</th>
+            <th scope="col" class="text-right">Цена</th>
             <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < Model.Items.Length; i++)
-        {
+        @for (var i = 0; i < Model.Items.Length; i++) {
             <tr>
                 <td class="text-right">@(i + 1)</td>
                 <td>@Model.Items[i].Author</td>
@@ -27,9 +26,10 @@
                 <td class="text-right">@Model.Items[i].Count</td>
                 <td class="text-right">@Model.Items[i].Price</td>
                 <td class="text-center">
-                    @* <form class="form-inline" action="@Url.Action("RemoveItem", "Order")" method="post"> *@
-                    @*     <input type="hidden" name="bookId" value="@Model.Items[i].BookId" /> *@
-                    @* </form> *@
+                    <form class="form-inline" action="@Url.Action(action: "RemoveItem", "Order")" method="post">
+                        <input type="hidden" name="bookId" value="@Model.Items[i].BookId" />
+                        <button class="btn btn-danger" type="submit">Удалить</button>
+                    </form>
                 </td>
             </tr>
         }

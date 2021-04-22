@@ -5,6 +5,6 @@ namespace Bookstore {
 		Book[] GetAllByIsbn(string isbn);
 		Book[] GetAllByTitleOrAuthor(string titleOtAuthor);
         Book GetById(int id);
-        Book[] GetAllByIds(IEnumerable<int> bookIds);
-    }
+        Book[] GetAllByIds(IEnumerable<int> ids);
+	}
 }

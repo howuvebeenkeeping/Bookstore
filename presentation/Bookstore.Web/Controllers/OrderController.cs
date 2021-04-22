@@ -15,7 +15,7 @@ namespace Bookstore.Web.Controllers {
         
 
         public IActionResult Index() {
-            if (!HttpContext.Session.TryGetCart(out Cart cart)) return View("Empty");
+            if (!HttpContext.Session.TryGetCart(out Cart cart)) { return View("Empty"); }
             
             Order order = _orderRepository.GetById(cart.OrderId);
             OrderModel model = Map(order);
@@ -45,7 +45,39 @@ namespace Bookstore.Web.Controllers {
             };
         }
 
-        public IActionResult AddItem(int id) {
+        public IActionResult AddItem(int bookId, int count = 1) {
+            (Order order, Cart cart) = GetOrCreateOrderAndCart();
+
+            var book = _bookRepository.GetById(bookId);
+            
+            order.AddOrUpdateItem(book, count);
+            
+            SaveOrderAndCart(order, cart);
+
+            return RedirectToAction("Index", "Book", new { id = bookId });
+        }
+
+
+        public IActionResult RemoveItem(int bookId) {
+            (Order order, Cart cart) = GetOrCreateOrderAndCart();
+            
+            order.RemoveItem(bookId);
+            
+            SaveOrderAndCart(order, cart);
+
+            return RedirectToAction(actionName: "Index", "Order");
+        }
+
+        private void SaveOrderAndCart(Order order, Cart cart) {
+            _orderRepository.Update(order);
+
+            cart.TotalCount = order.TotalCount;
+            cart.TotalPrice = order.TotalPrice;
+
+            HttpContext.Session.Set(cart);
+        }
+
+        private (Order order, Cart cart) GetOrCreateOrderAndCart() {
             Order order;
 
             if (HttpContext.Session.TryGetCart(out Cart cart)) {
@@ -55,16 +87,18 @@ namespace Bookstore.Web.Controllers {
                 cart = new Cart(order.Id);
             }
 
-            Book book = _bookRepository.GetById(id);
-            order.AddItem(book, 1);
-            _orderRepository.Update(order);
+            return (order, cart);
+        }
+        
+        [HttpPost]
+        public IActionResult UpdateItem(int bookId, int count) {
+            (Order order, Cart cart) = GetOrCreateOrderAndCart();
 
-            cart.TotalCount = order.TotalCount;
-            cart.TotalPrice = order.TotalPrice;
+            order.GetItem(bookId).Count = count;
+            
+            SaveOrderAndCart(order, cart);
 
-            HttpContext.Session.Set(cart);
-
-            return RedirectToAction("Index", "Book", new { id = id });
+            return RedirectToAction(actionName: "Index", "Order");
         }
     }
 }

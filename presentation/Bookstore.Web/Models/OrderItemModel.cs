@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Bookstore.Web.Models
-{
-    public class OrderItemModel
-    {
+﻿namespace Bookstore.Web.Models {
+    // Data transfer object - хранит только свойства
+    public class OrderItemModel {
         public int BookId { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }

@@ -20,7 +20,7 @@ namespace Bookstore.Memory {
         }
 
         public void Update(Order order) {
-            throw new NotImplementedException();
+            ;
         }
     }
 }
