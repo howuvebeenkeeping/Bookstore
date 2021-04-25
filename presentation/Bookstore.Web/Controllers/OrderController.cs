@@ -186,7 +186,7 @@ namespace Bookstore.Web.Controllers {
         public IActionResult StartDelivery(int id, string uniqueCode) {
             IDeliveryService deliveryService = _deliveryServices.Single(service => service.UniqueCode == uniqueCode);
             Order order = _orderRepository.GetById(id);
-            var form = deliveryService.CreateForm(order);
+            Form form = deliveryService.CreateForm(order);
 
             return View("DeliveryStep", form);
         }

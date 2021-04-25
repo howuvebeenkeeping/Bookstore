@@ -6,13 +6,13 @@
 
 <h1>Способ доставки</h1>
 
-<form action="@Url.Action("Confirm")" method="post">
+<form action="@Url.Action("StartDelivery")" method="post">
     <input type="hidden" name="id" value="@Model.OrderId">
     <div class="form-group">
         <label for="code">Способ доставки:</label>
         <select class="form-control" name="uniqueCode">
-            @foreach (var method in Model.Methods) {
-                <option value="@method.Key">@method.Value</option>
+            @foreach ((string key, string value) in Model.Methods) {
+                <option value="@key">@value</option>
             }
         </select>
     </div>

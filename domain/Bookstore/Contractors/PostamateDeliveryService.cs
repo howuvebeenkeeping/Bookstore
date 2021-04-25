@@ -4,7 +4,7 @@ using System;
 namespace Bookstore.Contractors {
     public class PostamateDeliveryService : IDeliveryService {
         public string UniqueCode => "Postamate";
-        public string Title => "Доставка через постаматы";
+        public string Title => "Доставка через постаматы в Москве и Санкт-Петербурге";
 
         private static IReadOnlyDictionary<string, string> _cities = new Dictionary<string, string>() {
             ["1"] = "Москва",
@@ -27,7 +27,7 @@ namespace Bookstore.Contractors {
         
         public Form CreateForm(Order order) {
             if (order is null) {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(order));
             }
 
             return new Form(UniqueCode, order.Id, 1, false, new[] {
@@ -38,7 +38,7 @@ namespace Bookstore.Contractors {
         public Form MoveNext(int orderId, int step, IReadOnlyDictionary<string, string> values) {
             return step switch {
                 1 => values["city"] switch {
-                    "1" => new Form(UniqueCode, orderId, 1, false,
+                    "1" => new Form(UniqueCode, orderId, 2, false,
                         new Field[] {
                             new HiddenField("Город", "city", "1"),
                             new SelectionField("Постамат", "postamate", "1", postamates["1"]),
