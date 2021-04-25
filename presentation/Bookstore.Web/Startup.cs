@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using Bookstore.Contractors;
 using Bookstore.Memory;
 using Bookstore.Messages;
 using Microsoft.AspNetCore.Builder;
@@ -33,6 +34,7 @@ namespace Bookstore.Web {
             services.AddSingleton<IBookRepository, BookRepository>();
             services.AddSingleton<IOrderRepository, OrderRepository>();
             services.AddSingleton<INotificationService, DebugNotificationService>();
+            services.AddSingleton<IDeliveryService, PostamateDeliveryService>();
             services.AddSingleton<BookService>();
             
         }
