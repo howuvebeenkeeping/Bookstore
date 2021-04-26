@@ -2,15 +2,15 @@
 @model DeliveryModel
 
 @{
-    ViewBag.Title = "Способ доставки";
+    ViewBag.Title = "Способ оплаты";
 }
  
-<h1>Способ доставки</h1>
+<h1>Способ оплаты</h1>
 
 <form action="@Url.Action(nameof(OrderController.StartPayment))" method="post">
     <input type="hidden" name="id" value="@Model.OrderId">
     <div class="form-group">
-        <label for="code">Способ доставки:</label>
+        <label for="code">Способ оплаты:</label>
         <select class="form-control" name="uniqueCode">
             @foreach ((string key, string value) in Model.Methods) {
                 <option value="@key">@value</option>

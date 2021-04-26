@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace Bookstore.Contractors {
     public class PostamateDeliveryService : IDeliveryService {
         public string UniqueCode => "Postamate";
         public string Title => "Доставка через постаматы в Москве и Санкт-Петербурге";
 
-        private static IReadOnlyDictionary<string, string> _cities = new Dictionary<string, string>() {
+        private static readonly IReadOnlyDictionary<string, string> Cities = new Dictionary<string, string>() {
             ["1"] = "Москва",
             ["2"] = "Санкт-Петербург"
         };
 
-        private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> postamates =
+        private static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Postamates =
             new Dictionary<string, IReadOnlyDictionary<string, string>> {
                 ["1"] = new Dictionary<string, string> {
                     ["1"] = "Казанский вокзал",
@@ -31,22 +32,22 @@ namespace Bookstore.Contractors {
             }
 
             return new Form(UniqueCode, order.Id, 1, false, new[] {
-                new SelectionField("Город", "city", "1", _cities)
+                new SelectionField("Город", "city", "1", Cities)
             });
         }
 
-        public Form MoveNext(int orderId, int step, IReadOnlyDictionary<string, string> values) {
+        public Form MoveNextForm(int orderId, int step, IReadOnlyDictionary<string, string> values) {
             return step switch {
                 1 => values["city"] switch {
                     "1" => new Form(UniqueCode, orderId, 2, false,
                         new Field[] {
                             new HiddenField("Город", "city", "1"),
-                            new SelectionField("Постамат", "postamate", "1", postamates["1"]),
+                            new SelectionField("Постамат", "postamate", "1", Postamates["1"]),
                         }),
                     "2" => new Form(UniqueCode, orderId, 2, false,
                         new Field[] {
                             new HiddenField("Город", "city", "2"),
-                            new SelectionField("Постамат", "postamate", "4", postamates["2"]),
+                            new SelectionField("Постамат", "postamate", "4", Postamates["2"]),
                         }),
                     _ => throw new InvalidOperationException("Invalid postamate city.")
                 },
@@ -57,6 +58,35 @@ namespace Bookstore.Contractors {
                     }),
                 _ => throw new InvalidOperationException("Invalid postamate step.")
             };
+        }
+
+        public OrderDelivery GetDelivery(Form form) {
+            if (form.UniqueCode != UniqueCode || form.IsFinal) {
+                throw new InvalidOperationException("Invalid form");
+            }
+
+            string cityId = form.Fields
+                                .Single(field => field.Name == "city")
+                                .Value;
+            
+            string cityName = Cities[cityId];
+            
+            string postamateId = form.Fields
+                                     .Single(field => field.Name == "postamate")
+                                     .Value;
+            
+            string postamateName = Postamates[cityId][postamateId];
+
+            var parameters = new Dictionary<string, string> {
+                [nameof(cityId)]        =  cityId,
+                [nameof(cityName)]      =  cityName,
+                [nameof(postamateId)]   =  postamateId,
+                [nameof(postamateName)] =  postamateName,
+            };
+
+            var description = $"Город: {cityName}\nПостамат: {postamateName}";
+
+            return new OrderDelivery(UniqueCode, description, 150m, parameters);
         }
     }
 }

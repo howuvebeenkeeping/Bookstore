@@ -9,8 +9,12 @@ namespace Bookstore {
         public int Id { get; }
         private readonly List<OrderItem> _items;
         public IReadOnlyCollection<OrderItem> Items => _items;
+        public string CellPhone { get; set; }
+        public OrderDelivery Delivery { get; set; }
+        public OrderPayment Payment { get; set; }
         public int TotalCount => _items.Sum(x => x.Count);
-        public decimal TotalPrice => _items.Sum(x => x.Price * x.Count);
+        public decimal TotalPrice => _items.Sum(x => x.Price * x.Count) 
+                                     + (Delivery?.Amount ?? 0m);
 
         public Order(int id, IEnumerable<OrderItem> items) {
             if (items == null) {

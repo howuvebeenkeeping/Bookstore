@@ -1,4 +1,5 @@
-﻿@model ConfirmationModel
+﻿@using Bookstore.Web.Controllers
+@model ConfirmationModel
 
 @{
     ViewData["Title"] = "Подтверждение мобильного";
@@ -6,7 +7,7 @@
 
 <h1>Подтверждение мобильного</h1>
 
-<form action="@Url.Action("Confirm")" method="post">
+<form action="@Url.Action(nameof(OrderController.Confirm))" method="post">
     <input type="hidden" name="id" value="@Model.OrderId" />
     <input type="hidden" name="cellPhone" value="@Model.CellPhone" />
     <div class="form-group">
@@ -20,7 +21,7 @@
     <button type="submit" class="btn btn-success">Проверить</button>
 </form>
 
-<form action="@Url.Action("SendConfirmationCode")" method="post">
+<form action="@Url.Action(nameof(OrderController.SendConfirmationCode))" method="post">
     <input type="hidden" name="id" value="@Model.OrderId" />
     <div class="form-group">
         <label for="cellPhone">Мобильный телефон</label>

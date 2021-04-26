@@ -1,4 +1,5 @@
-﻿@model OrderModel
+﻿@using Bookstore.Web.Controllers
+@model OrderModel
 
 @{
     ViewData["Title"] = "Корзина";
@@ -43,7 +44,7 @@
     </tfoot>
 </table>
 
-<form action="@Url.Action("SendConfirmationCode")" method="post">
+<form action="@Url.Action(nameof(OrderController.SendConfirmationCode))" method="post">
     <input type="hidden" name="id" value="@Model.Id"/>
     <div class="form-group">
         <label for="cellPhone">Мобильный телефон</label>

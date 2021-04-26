@@ -15,16 +15,19 @@ namespace Bookstore.Web.Controllers {
         private readonly IOrderRepository _orderRepository;
         private readonly INotificationService _notificationService;
         private readonly IEnumerable<IDeliveryService> _deliveryServices;
+        private readonly IEnumerable<IPaymentService> _paymentServices;
 
         public OrderController(
             IBookRepository bookRepository,
             IOrderRepository orderRepository, 
             INotificationService notificationService,
-            IEnumerable<IDeliveryService> deliveryServices) {
+            IEnumerable<IDeliveryService> deliveryServices,
+            IEnumerable<IPaymentService> paymentServices) {
             _bookRepository = bookRepository;
             _orderRepository = orderRepository;
             _notificationService = notificationService;
             _deliveryServices = deliveryServices;
+            _paymentServices = paymentServices;
         }
 
         [HttpGet]
@@ -40,6 +43,7 @@ namespace Bookstore.Web.Controllers {
         private OrderModel Map(Order order) {
             IEnumerable<int> bookIds = order.Items.Select(item => item.BookId);
             Book[] books = _bookRepository.GetAllByIds(bookIds);
+            
             IEnumerable<OrderItemModel> itemModels = 
                 from item in order.Items
                 join book in books on item.BookId equals book.Id
@@ -63,13 +67,13 @@ namespace Bookstore.Web.Controllers {
         public IActionResult AddItem(int bookId, int count = 1) {
             (Order order, Cart cart) = GetOrCreateOrderAndCart();
 
-            var book = _bookRepository.GetById(bookId);
+            Book book = _bookRepository.GetById(bookId);
             
             order.AddOrUpdateItem(book, count);
             
             SaveOrderAndCart(order, cart);
 
-            return RedirectToAction("Index", "Book", new { id = bookId });
+            return RedirectToAction(actionName: "Index", "Book", new { id = bookId });
         }
 
         [HttpPost]
@@ -125,7 +129,7 @@ namespace Bookstore.Web.Controllers {
                 return View("Index", model);
             }
 
-            int code = 1111;
+            var code = 1111;
             HttpContext.Session.SetInt32(cellPhone, code);
             _notificationService.SendConfirmationCode(cellPhone, code);
 
@@ -134,7 +138,7 @@ namespace Bookstore.Web.Controllers {
             });
         }
 
-        private bool IsValidCellPhone(string cellPhone) {
+        private static bool IsValidCellPhone(string cellPhone) {
             if (cellPhone is null) {
                 return false;
             }
@@ -170,6 +174,10 @@ namespace Bookstore.Web.Controllers {
                         }
                     });
             }
+
+            Order order = _orderRepository.GetById(id);
+            order.CellPhone = cellPhone;
+            _orderRepository.Update(order);
             
             HttpContext.Session.Remove(cellPhone);
 
@@ -184,7 +192,9 @@ namespace Bookstore.Web.Controllers {
 
         [HttpPost]
         public IActionResult StartDelivery(int id, string uniqueCode) {
-            IDeliveryService deliveryService = _deliveryServices.Single(service => service.UniqueCode == uniqueCode);
+            IDeliveryService deliveryService = _deliveryServices
+                .Single(service => service.UniqueCode == uniqueCode);
+            
             Order order = _orderRepository.GetById(id);
             Form form = deliveryService.CreateForm(order);
 
@@ -193,14 +203,54 @@ namespace Bookstore.Web.Controllers {
 
         [HttpPost]
         public IActionResult NextDelivery(int id, string uniqueCode, int step, Dictionary<string, string> values) {
-            var deliveryService = _deliveryServices.Single(service => service.UniqueCode == uniqueCode);
-            var form = deliveryService.MoveNext(id, step, values);
+            IDeliveryService deliveryService = _deliveryServices
+                .Single(service => service.UniqueCode == uniqueCode);
+            
+            Form form = deliveryService.MoveNextForm(id, step, values);
 
             if (form.IsFinal) {
-                return null;
-            }
+                Order order = _orderRepository.GetById(id);
+                order.Delivery = deliveryService.GetDelivery(form);
+                _orderRepository.Update(order);
 
+                var model = new DeliveryModel {
+                    OrderId = id,
+                    Methods = _paymentServices.ToDictionary(service => service.UniqueCode,
+                        service => service.Title)
+                };
+                return View("PaymentMethod", model);
+            }
+            
             return View("DeliveryStep", form);
+        }
+        
+        [HttpPost]
+        public IActionResult StartPayment(int id, string uniqueCode) {
+            IPaymentService paymentService = _paymentServices
+                .Single(service => service.UniqueCode == uniqueCode);
+            
+            Order order = _orderRepository.GetById(id);
+            Form form = paymentService.CreateForm(order);
+
+            return View("PaymentStep", form);
+        }
+
+        [HttpPost]
+        public IActionResult NextPayment(int id, string uniqueCode, int step, Dictionary<string, string> values) {
+            IPaymentService paymentService = _paymentServices
+                .Single(service => service.UniqueCode == uniqueCode);
+            
+            Form form = paymentService.MoveNextForm(id, step, values);
+
+            if (form.IsFinal) {
+                Order order = _orderRepository.GetById(id);
+                order.Payment = paymentService.GetPayment(form);
+                _orderRepository.Update(order);
+                
+                return View("Finish");
+            }
+            
+            return View("PaymentStep", form);
         }
     }
 }

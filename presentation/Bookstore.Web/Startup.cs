@@ -35,8 +35,8 @@ namespace Bookstore.Web {
             services.AddSingleton<IOrderRepository, OrderRepository>();
             services.AddSingleton<INotificationService, DebugNotificationService>();
             services.AddSingleton<IDeliveryService, PostamateDeliveryService>();
+            services.AddSingleton<IPaymentService, CashPaymentService>();
             services.AddSingleton<BookService>();
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
