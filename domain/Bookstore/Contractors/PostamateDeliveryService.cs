@@ -61,7 +61,7 @@ namespace Bookstore.Contractors {
         }
 
         public OrderDelivery GetDelivery(Form form) {
-            if (form.UniqueCode != UniqueCode || form.IsFinal) {
+            if (form.UniqueCode != UniqueCode || !form.IsFinal) {
                 throw new InvalidOperationException("Invalid form");
             }
 

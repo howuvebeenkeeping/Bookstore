@@ -23,7 +23,7 @@ namespace Bookstore.Contractors {
                 throw new InvalidOperationException("Invalid payment form");
             }
 
-            return new OrderPayment(UniqueCode, "Оплата ниличными", new Dictionary<string, string>());
+            return new OrderPayment(UniqueCode, "Оплата наличными", new Dictionary<string, string>());
         }
     }
 }
