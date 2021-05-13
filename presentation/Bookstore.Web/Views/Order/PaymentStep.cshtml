@@ -10,13 +10,13 @@
     <input type="hidden" name="id" value="@Model.OrderId">
     <input type="hidden" name="uniqueCode" value="@Model.UniqueCode">
     <input type="hidden" name="step" value="@Model.Step">
-    @foreach (var field in Model.Fields) {
-        if (field is HiddenField) {
-            <input type="hidden" name="values[@field.Name]" value="@field.Value">
+    @foreach (Field field in Model.Fields) {
+        if (field is HiddenField hiddenField) {
+            <input type="hidden" name="values[@hiddenField.Name]" value="@hiddenField.Value">
         } else if (field is SelectionField selectionField) {
             <div class="form-group">
-                <label for="values[@field.Name]">@field.Name</label>
-                <select class="form-control" name="values[@field.Name]">
+                <label for="values[@field.Name]">@selectionField.Name</label>
+                <select class="form-control" name="values[@selectionField.Name]">
                     @foreach ((string key, string value) in selectionField.Items) {
                         <option value="@key">@value</option>
                     }

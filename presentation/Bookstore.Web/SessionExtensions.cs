@@ -6,6 +6,10 @@ using System.Text;
 namespace Bookstore.Web {
     public static class SessionExtensions {
         private static readonly string Key = "Cart";
+
+        public static void RemoveCart(this ISession session) {
+            session.Remove(Key);
+        }
         public static void Set(this ISession session, Cart cart) {
             if (cart == null) { return; }
 
