@@ -3,13 +3,14 @@ using System.Diagnostics;
 using Bookstore.Contractors;
 using Bookstore.Memory;
 using Bookstore.Messages;
+using Bookstore.Web.App;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Store.Web.Contractors;
-using Store.YandexKassa;
+using Bookstore.Web.Contractors;
+using Bookstore.YandexKassa;
 
 namespace Bookstore.Web {
     public class Startup {
@@ -22,6 +23,7 @@ namespace Bookstore.Web {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllersWithViews();
+            services.AddHttpContextAccessor();
             // хранение в памяти
             services.AddDistributedMemoryCache();
             // сессия
@@ -41,6 +43,7 @@ namespace Bookstore.Web {
             services.AddSingleton<IPaymentService, YandexKassaPaymentService>();
             services.AddSingleton<IWebContractorService, YandexKassaPaymentService>();
             services.AddSingleton<BookService>();
+            services.AddSingleton<OrderService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,10 +69,9 @@ namespace Bookstore.Web {
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-                endpoints.MapAreaControllerRoute(
-                    name: "yandex.kassa",
-                    areaName: "YandexKassa",
-                    pattern: "YandexKassa/{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                    name: "areas",
+                    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

@@ -1,9 +1,8 @@
-﻿using Bookstore.Web.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Text;
 
-namespace Bookstore.Web {
+namespace Bookstore.Web.App {
     public static class SessionExtensions {
         private static readonly string Key = "Cart";
 
@@ -32,10 +31,7 @@ namespace Bookstore.Web {
                 int totalCount = reader.ReadInt32();
                 decimal totalPrice = reader.ReadDecimal();
 
-                cart = new Cart(orderId) {
-                    TotalCount = totalCount,
-                    TotalPrice = totalPrice
-                };
+                cart = new Cart(orderId, totalCount, totalPrice);
 
                 return true;
             }

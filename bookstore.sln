@@ -21,7 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bookstore.Web.Contractors",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{85E342DB-015A-48B3-898C-6AE8D33F979F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.YandexKassa", "Plugins\Store.YandexKassa\Store.YandexKassa.csproj", "{76C81DB2-DD6C-47E1-A742-242A6E0FDAEB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookstore.YandexKassa", "Plugins\Bookstore.YandexKassa\Bookstore.YandexKassa.csproj", "{76C81DB2-DD6C-47E1-A742-242A6E0FDAEB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "application", "application", "{FE8DC740-4B0B-4FA2-A9BF-D3D9E0A5EBF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bookstore.Web.App", "Application\Bookstore.Web.App\Bookstore.Web.App.csproj", "{19C886AF-7869-4589-8452-BD472AF5515F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +109,18 @@ Global
 		{76C81DB2-DD6C-47E1-A742-242A6E0FDAEB}.Release|x64.Build.0 = Release|Any CPU
 		{76C81DB2-DD6C-47E1-A742-242A6E0FDAEB}.Release|x86.ActiveCfg = Release|Any CPU
 		{76C81DB2-DD6C-47E1-A742-242A6E0FDAEB}.Release|x86.Build.0 = Release|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Debug|x64.Build.0 = Debug|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Debug|x86.Build.0 = Debug|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Release|x64.ActiveCfg = Release|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Release|x64.Build.0 = Release|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Release|x86.ActiveCfg = Release|Any CPU
+		{19C886AF-7869-4589-8452-BD472AF5515F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -116,6 +132,7 @@ Global
 		{FB8A0F53-E280-4602-954E-F1E60ECCFC46} = {6537B97C-D03B-4BF2-A937-52083A9D4FCE}
 		{68BE502D-A60D-42E3-9589-0AD8670FF6FD} = {C2AFD4DE-DE5D-4CD5-9563-2EC2D2573643}
 		{76C81DB2-DD6C-47E1-A742-242A6E0FDAEB} = {85E342DB-015A-48B3-898C-6AE8D33F979F}
+		{19C886AF-7869-4589-8452-BD472AF5515F} = {FE8DC740-4B0B-4FA2-A9BF-D3D9E0A5EBF8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DF142510-9355-4CED-9532-E725E09D4480}

@@ -1,4 +1,4 @@
-﻿@model Book[]
+﻿@model IReadOnlyCollection<BookModel>
 
 @{
     ViewData["Title"] = "Результаты поиска";
@@ -10,7 +10,7 @@
     <p>По вашему запросу ничего не найдено.</p>
 } else {
     <ul>
-        @foreach(Book book in Model) {
+        @foreach(var book in Model) {
             <li>
                 <a href="@Url.Action(action: "Index", "Book", new { id = book.Id })">@book.Title</a>
             </li>

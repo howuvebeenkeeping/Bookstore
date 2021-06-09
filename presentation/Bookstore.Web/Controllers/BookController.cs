@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Bookstore.Web.App;
 
 namespace Bookstore.Web.Controllers {
     public class BookController : Controller {
-        private readonly IBookRepository _bookRepository;
+        private readonly BookService _bookService;
 
-        public BookController(IBookRepository bookRepository) {
-            _bookRepository = bookRepository;
+        public BookController(BookService bookService) {
+            _bookService = bookService;
         }
         public IActionResult Index(int id) {
-            Book book = _bookRepository.GetById(id);
+            var model = _bookService.GetById(id);
 
-            return View(book);
+            return View(model);
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace Store.Web.Contractors {
+namespace Bookstore.Web.Contractors {
     public interface IWebContractorService {
-        public string UniqueCode { get; }
-        public string GetUri { get; }
+        string Name { get; }
+        Uri StartSession(IReadOnlyDictionary<string, string> parameters, Uri returnUri);
     }
 }

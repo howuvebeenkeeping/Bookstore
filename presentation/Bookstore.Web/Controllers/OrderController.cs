@@ -1,274 +1,165 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Bookstore.Contractors;
-using Bookstore.Messages;
-using Bookstore.Web.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Store.Web.Contractors;
+using Bookstore.Contractors;
+using Bookstore.Web.App;
+using Bookstore.Web.Contractors;
 
-namespace Bookstore.Web.Controllers {
-    public class OrderController : Controller {
-        private readonly IBookRepository _bookRepository;
-        private readonly IOrderRepository _orderRepository;
-        private readonly INotificationService _notificationService;
-        private readonly IEnumerable<IDeliveryService> _deliveryServices;
-        private readonly IEnumerable<IPaymentService> _paymentServices;
-        private readonly IEnumerable<IWebContractorService> _webContractorServices;
+namespace Bookstore.Web.Controllers
+{
+    public class OrderController : Controller
+    {
+        private readonly OrderService orderService;
+        private readonly IEnumerable<IDeliveryService> deliveryServices;
+        private readonly IEnumerable<IPaymentService> paymentServices;
+        private readonly IEnumerable<IWebContractorService> webContractorServices;
 
-        public OrderController(
-            IBookRepository bookRepository,
-            IOrderRepository orderRepository, 
-            INotificationService notificationService,
-            IEnumerable<IDeliveryService> deliveryServices,
-            IEnumerable<IPaymentService> paymentServices, IEnumerable<IWebContractorService> webContractorServices) {
-            _bookRepository = bookRepository;
-            _orderRepository = orderRepository;
-            _notificationService = notificationService;
-            _deliveryServices = deliveryServices;
-            _paymentServices = paymentServices;
-            _webContractorServices = webContractorServices;
+        public OrderController(OrderService orderService,
+                               IEnumerable<IDeliveryService> deliveryServices,
+                               IEnumerable<IPaymentService> paymentServices,
+                               IEnumerable<IWebContractorService> webContractorServices)
+        {
+            this.orderService = orderService;
+            this.deliveryServices = deliveryServices;
+            this.paymentServices = paymentServices;
+            this.webContractorServices = webContractorServices;
         }
 
         [HttpGet]
-        public IActionResult Index() {
-            if (!HttpContext.Session.TryGetCart(out Cart cart)) { return View("Empty"); }
-            
-            Order order = _orderRepository.GetById(cart.OrderId);
-            OrderModel model = Map(order);
+        public IActionResult Index()
+        {
+            if (orderService.TryGetModel(out OrderModel model))
+                return View(model);
 
-            return View(model);
-        }
-
-        private OrderModel Map(Order order) {
-            IEnumerable<int> bookIds = order.Items.Select(item => item.BookId);
-            Book[] books = _bookRepository.GetAllByIds(bookIds);
-            
-            IEnumerable<OrderItemModel> itemModels = 
-                from item in order.Items
-                join book in books on item.BookId equals book.Id
-                select new OrderItemModel {
-                    BookId = book.Id,
-                    Title = book.Title,
-                    Author = book.Author,
-                    Price = item.Price,
-                    Count = item.Count
-                };
-
-            return new OrderModel {
-                Id = order.Id,
-                Items = itemModels.ToArray(),
-                TotalCount = order.TotalCount,
-                TotalPrice = order.TotalPrice
-            };
+            return View("Empty");
         }
 
         [HttpPost]
-        public IActionResult AddItem(int bookId, int count = 1) {
-            (Order order, Cart cart) = GetOrCreateOrderAndCart();
+        public IActionResult AddItem(int bookId, int count = 1)
+        {
+            orderService.AddBook(bookId, count);
 
-            Book book = _bookRepository.GetById(bookId);
-            
-            if (order.Items.TryGet(bookId, out OrderItem orderItem))
-                orderItem.Count += count;
-            else
-                order.Items.Add(bookId, book.Price, count);
-            
-            SaveOrderAndCart(order, cart);
-
-            return RedirectToAction(actionName: "Index", "Book", new { id = bookId });
+            return RedirectToAction("Index", "Book", new { id = bookId });
         }
 
         [HttpPost]
-        public IActionResult RemoveItem(int bookId) {
-            (Order order, Cart cart) = GetOrCreateOrderAndCart();
-            
-            order.Items.Remove(bookId);
-            
-            SaveOrderAndCart(order, cart);
+        public IActionResult UpdateItem(int bookId, int count)
+        {
+            var model = orderService.UpdateBook(bookId, count);
 
-            return RedirectToAction(actionName: "Index", "Order");
-        }
-
-        private void SaveOrderAndCart(Order order, Cart cart) {
-            _orderRepository.Update(order);
-
-            cart.TotalCount = order.TotalCount;
-            cart.TotalPrice = order.TotalPrice;
-
-            HttpContext.Session.Set(cart);
-        }
-
-        private (Order order, Cart cart) GetOrCreateOrderAndCart() {
-            Order order;
-
-            if (HttpContext.Session.TryGetCart(out Cart cart)) {
-                order = _orderRepository.GetById(cart.OrderId);
-            } else {
-                order = _orderRepository.Create();
-                cart = new Cart(order.Id);
-            }
-
-            return (order, cart);
-        }
-        
-        [HttpPost]
-        public IActionResult UpdateItem(int bookId, int count) {
-            (Order order, Cart cart) = GetOrCreateOrderAndCart();
-
-            order.Items.Get(bookId).Count = count;
-            
-            SaveOrderAndCart(order, cart);
-
-            return RedirectToAction(actionName: "Index", "Order");
-        }
-
-        public IActionResult SendConfirmationCode(int id, string cellPhone) {
-            Order order = _orderRepository.GetById(id);
-            OrderModel model = Map(order);
-
-            if (!IsValidCellPhone(cellPhone)) {
-                model.Errors["cellPhone"] = "Номер телефона не соответствует формату +79876543210";
-                return View("Index", model);
-            }
-
-            var code = 1111;
-            HttpContext.Session.SetInt32(cellPhone, code);
-            _notificationService.SendConfirmationCode(cellPhone, code);
-
-            return View("Confirmation", new ConfirmationModel() {
-                CellPhone = cellPhone, OrderId = id
-            });
-        }
-
-        private static bool IsValidCellPhone(string cellPhone) {
-            if (cellPhone is null) {
-                return false;
-            }
-
-            cellPhone = cellPhone
-                .Replace(" ", "")
-                .Replace("-", "");
-
-            return Regex.IsMatch(cellPhone, @"^\+?\d{11}$");
+            return View("Index", model);
         }
 
         [HttpPost]
-        public IActionResult Confirm(int id, string cellPhone, int code) {
-            int? storedCode = HttpContext.Session.GetInt32(cellPhone);
-            if (storedCode == null) {
-                return View("Confirmation",
-                    new ConfirmationModel {
-                        OrderId = id,
-                        CellPhone = cellPhone,
-                        Errors = new Dictionary<string, string> {
-                            ["code"] = "Пустой код, повторите отправку"
-                        }
-                    });
-            }
+        public IActionResult RemoveItem(int bookId)
+        {
+            var model = orderService.RemoveBook(bookId);
 
-            if (storedCode != code) {
-                return View("Confirmation",
-                    new ConfirmationModel {
-                        OrderId = id,
-                        CellPhone = cellPhone,
-                        Errors = new Dictionary<string, string> {
-                            { "code", "Отличается от отправленного" }
-                        }
-                    });
-            }
+            return View("Index", model);
+        }
 
-            Order order = _orderRepository.GetById(id);
-            order.CellPhone = cellPhone;
-            _orderRepository.Update(order);
-            
-            HttpContext.Session.Remove(cellPhone);
+        [HttpPost]
+        public IActionResult SendConfirmation(string cellPhone)
+        {
+            var model = orderService.SendConfirmation(cellPhone);
 
-            var model = new DeliveryModel {
-                OrderId = id,
-                Methods = _deliveryServices.ToDictionary(service => service.UniqueCode,
-                    service => service.Title)
+            return View("Confirmation", model);
+        }
+
+        [HttpPost]
+        public IActionResult ConfirmCellPhone(string cellPhone, int confirmationCode)
+        {
+            var model = orderService.ConfirmCellPhone(cellPhone, confirmationCode);
+
+            if (model.Errors.Count > 0)
+                return View("Confirmation", model);
+
+            var deliveryMethods = deliveryServices.ToDictionary(service => service.Name,
+                                                                service => service.Title);
+
+            return View("DeliveryMethod", deliveryMethods);
+        }
+
+        [HttpPost]
+        public IActionResult StartDelivery(string serviceName)
+        {
+            var deliveryService = deliveryServices.Single(service => service.Name == serviceName);
+            var order = orderService.GetOrder();
+            var form = deliveryService.FirstForm(order);
+
+            var webContractorService = webContractorServices.SingleOrDefault(service => service.Name == serviceName);
+            if (webContractorService == null)
+                return View("DeliveryStep", form);
+
+            var returnUri = GetReturnUri(nameof(NextDelivery));
+            var redirectUri = webContractorService.StartSession(form.Parameters, returnUri);
+
+            return Redirect(redirectUri.ToString());
+        }
+
+        private Uri GetReturnUri(string action)
+        {
+            var builder = new UriBuilder(Request.Scheme, Request.Host.Host)
+            {
+                Path = Url.Action(action),
+                Query = null,
             };
 
-            return View("DeliveryMethod", model);
+            if (Request.Host.Port != null)
+                builder.Port = Request.Host.Port.Value;
+
+            return builder.Uri;
         }
 
         [HttpPost]
-        public IActionResult StartDelivery(int id, string uniqueCode) {
-            IDeliveryService deliveryService = _deliveryServices
-                .Single(service => service.UniqueCode == uniqueCode);
-            
-            Order order = _orderRepository.GetById(id);
-            Form form = deliveryService.CreateForm(order);
+        public IActionResult NextDelivery(string serviceName, int step, Dictionary<string, string> values)
+        {
+            var deliveryService = deliveryServices.Single(service => service.Name == serviceName);
 
-            return View("DeliveryStep", form);
+            var form = deliveryService.NextForm(step, values);
+            if (!form.IsFinal)
+                return View("DeliveryStep", form);
+
+            var delivery = deliveryService.GetDelivery(form);
+            orderService.SetDelivery(delivery);
+
+            var paymentMethods = paymentServices.ToDictionary(service => service.Name,
+                                                              service => service.Title);
+
+            return View("PaymentMethod", paymentMethods);
         }
 
         [HttpPost]
-        public IActionResult NextDelivery(int id, string uniqueCode, int step, Dictionary<string, string> values) {
-            IDeliveryService deliveryService = _deliveryServices
-                .Single(service => service.UniqueCode == uniqueCode);
-            
-            Form form = deliveryService.MoveNextForm(id, step, values);
+        public IActionResult StartPayment(string serviceName)
+        {
+            var paymentService = paymentServices.Single(service => service.Name == serviceName);
+            var order = orderService.GetOrder();
+            var form = paymentService.FirstForm(order);
 
-            if (form.IsFinal) {
-                Order order = _orderRepository.GetById(id);
-                order.Delivery = deliveryService.GetDelivery(form);
-                _orderRepository.Update(order);
+            var webContractorService = webContractorServices.SingleOrDefault(service => service.Name == serviceName);
+            if (webContractorService == null)
+                return View("PaymentStep", form);
 
-                var model = new DeliveryModel {
-                    OrderId = id,
-                    Methods = _paymentServices.ToDictionary(service => service.UniqueCode,
-                        service => service.Title)
-                };
-                return View("PaymentMethod", model);
-            }
-            
-            return View("DeliveryStep", form);
-        }
-        
-        [HttpPost]
-        public IActionResult StartPayment(int id, string uniqueCode) {
-            IPaymentService paymentService = _paymentServices
-                .Single(service => service.UniqueCode == uniqueCode);
-            
-            Order order = _orderRepository.GetById(id);
-            Form form = paymentService.CreateForm(order);
+            var returnUri = GetReturnUri(nameof(NextPayment));
+            var redirectUri = webContractorService.StartSession(form.Parameters, returnUri);
 
-            var webContractorService =
-                _webContractorServices.SingleOrDefault(service => service.UniqueCode == uniqueCode);
-            if (webContractorService != null) {
-                return Redirect(webContractorService.GetUri);
-            }
-
-            return View("PaymentStep", form);
+            return Redirect(redirectUri.ToString());
         }
 
         [HttpPost]
-        public IActionResult NextPayment(int id, string uniqueCode, int step, Dictionary<string, string> values) {
-            IPaymentService paymentService = _paymentServices
-                .Single(service => service.UniqueCode == uniqueCode);
-            
-            Form form = paymentService.MoveNextForm(id, step, values);
+        public IActionResult NextPayment(string serviceName, int step, Dictionary<string, string> values)
+        {
+            var paymentService = paymentServices.Single(service => service.Name == serviceName);
 
-            if (form.IsFinal) {
-                Order order = _orderRepository.GetById(id);
-                order.Payment = paymentService.GetPayment(form);
-                _orderRepository.Update(order);
-                
-                return View("Finish");
-            }
-            
-            return View("PaymentStep", form);
-        }
+            var form = paymentService.NextForm(step, values);
+            if (!form.IsFinal)
+                return View("PaymentStep", form);
 
-        public IActionResult Finish() {
-            HttpContext.Session.RemoveCart();
-            
-            return View();
+            var payment = paymentService.GetPayment(form);
+            var model = orderService.SetPayment(payment);
+
+            return View("Finish", model);
         }
     }
 }

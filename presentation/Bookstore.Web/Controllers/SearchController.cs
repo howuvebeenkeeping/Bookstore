@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Bookstore.Web.App;
 
 namespace Bookstore.Web.Controllers
 {
@@ -16,7 +17,7 @@ namespace Bookstore.Web.Controllers
         }
         public IActionResult Index(string query)
         {
-            Book[] books = _bookService.GetAllByQuery(query);
+            var books = _bookService.GetAllByQuery(query);
             return View("Index", books);
         }
     }

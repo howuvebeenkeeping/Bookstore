@@ -1,20 +1,18 @@
-﻿@using Bookstore.Web.Controllers
-@model DeliveryModel
-
+﻿@model IReadOnlyDictionary<string, string>
 @{
-    ViewBag.Title = "Способ оплаты";
+    ViewData["Title"] = "Способ оплаты";
 }
- 
+
 <h1>Способ оплаты</h1>
 
 <form action="@Url.Action(nameof(OrderController.StartPayment))" method="post">
-    <input type="hidden" name="id" value="@Model.OrderId">
     <div class="form-group">
         <label for="code">Способ оплаты:</label>
-        <select class="form-control" name="uniqueCode">
-            @foreach ((string key, string value) in Model.Methods) {
-                <option value="@key">@value</option>
-            }
+        <select class="form-control" name="serviceName">
+        @foreach (var method in Model)
+        {
+            <option value="@method.Key">@method.Value</option>
+        }
         </select>
     </div>
     <button type="submit" class="btn btn-success">Далее</button>

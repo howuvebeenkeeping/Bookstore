@@ -9,9 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Application\Bookstore.Web.App\Bookstore.Web.App.csproj" />
     <ProjectReference Include="..\..\domain\bookstore\Bookstore.csproj" />
     <ProjectReference Include="..\..\infrastructure\Bookstore.Memory\Bookstore.Memory.csproj" />
-    <ProjectReference Include="..\..\Plugins\Store.YandexKassa\Store.YandexKassa.csproj" />
+    <ProjectReference Include="..\..\Plugins\Bookstore.YandexKassa\Bookstore.YandexKassa.csproj" />
   </ItemGroup>
 
 </Project>

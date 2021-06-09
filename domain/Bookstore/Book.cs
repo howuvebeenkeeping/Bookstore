@@ -20,7 +20,7 @@ namespace Bookstore {
             Price = price;
         }
 
-        internal static bool IsIsbn(string line) {
+        public static bool IsIsbn(string line) {
             if (string.IsNullOrEmpty(line)) {
                 return false;
             }
