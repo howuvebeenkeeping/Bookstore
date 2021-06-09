@@ -15,7 +15,7 @@ namespace Bookstore {
             }
         }
         public decimal Price { get; }
-        public OrderItem(int bookId, int count, decimal price) {
+        public OrderItem(int bookId, decimal price, int count) {
             ThrowIfInvalidCount(count);
 
             BookId = bookId;
